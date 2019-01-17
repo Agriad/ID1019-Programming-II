@@ -1,6 +1,8 @@
 # test.ex
-defmodule Math do
-    def add(x, y) do
-        x + y
+defmodule Test do
+    def duplicate(x) do
+        duplicate(x)
+        [head | tail] = x
+        [head | x]
     end
 end
