@@ -1,8 +1,8 @@
 # test.ex
 defmodule Test do
-    def duplicate(x) do
-        duplicate(x)
-        [head | tail] = x
-        [head | x]
+    def unique(l) do
+        
     end
+
+    def check
 end
