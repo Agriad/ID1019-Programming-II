@@ -51,31 +51,45 @@ defmodule Sort do
     end
 
     def msort(l) do
-        case ...  do
-            ... -> 
-                ...
-            ... ->
+        case length(l) do
+            len when len < 2 -> 
+                # IO.puts "msort1" 
+                l    
+            _ ->
+                # IO.puts "msort2"
                 {split1, split2} = msplit(l, [], [])
-            merge(msort(split1), msort(split2))
+                # IO.puts split1
+                # IO.puts split2
+                merge(msort(split1), msort(split2))
         end
     end
 
     def merge([], l) do l end
     def merge(l, []) do l end
-    def merge([head1 | tail1], [head2 | tail2]) do
-        if head1 < head2
-            merge([head1 | tail1], [head2 | tail2])
+    def merge(list1, list2) do
+        [head1 | tail1] = list1
+        [head2 | tail2] = list2
+        if head1 < head2 do
+            # IO.puts "merge1"
+            # merge(list1 ++ list2, [])
+            # new_list = [head1 | head2]
+            [head1] ++ merge(tail1, list2)
         else 
-            merge([head2 | tail2], [head1 | tail1])
+            # IO.puts "merge2"
+            [head2] ++ merge(list1, tail2)
         end
     end
 
-    def msplit(split1, split2, split3) do
-        case split1 do
-        [] -> 
-            {split2, split3}
+    def msplit(list, split1, split2) do
+        case length(list) do
+        len when len < 2 -> 
+            # IO.puts "msplit1"
+            {split1, list ++ split2}
         _ ->
-            msplit(..., ..., ...)
+            # IO.puts "msplit2"
+            [head | tail] = list
+            [head1 | tail1] = tail
+            msplit(tail1, [head | split1], [head1 | split2])
         end
     end
 
