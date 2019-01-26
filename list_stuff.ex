@@ -113,6 +113,13 @@ defmodule ListStuff do
         #end
     end
 
+    def unique([]) do
+        []
+    end
+    def unique([head | tail]) do
+        [head] ++ unique(remove(head, tail))
+    end
+
     def reverse(list) do
         case list do
             [] -> list
