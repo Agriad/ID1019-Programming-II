@@ -1,9 +1,6 @@
 # test.ex
 defmodule Test do
-    def test(x) do
-        case x do
-            x > 5 -> 1
-            x =< 5 -> 0   
-        end
+    def test(a) do
+        is_integer(a)
     end
 end
