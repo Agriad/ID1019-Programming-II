@@ -28,7 +28,7 @@ defmodule Huffman do
     end
 
     def encode_table(tree) do
-        encode(tree)
+        encode_table_maker(tree)
     end
 
     def decode_table(tree) do
@@ -36,7 +36,7 @@ defmodule Huffman do
     end
 
     def encode(text, table) do
-        # To implement...
+        encoder(text, table)
     end
 
     def decode(seq, tree) do
@@ -148,19 +148,27 @@ defmodule Huffman do
     Finds the characters / integers in the tree and determines the code it produces
     left is 0 right is 1
     """
-    def encode(tree) do
+    def encode_table_maker(tree) do
         {{left, right}, value} = tree
-        list = encode(left, [0], [])
-        encode(right, [1], list)
+        list = encode_table_maker(left, [0], [])
+        encode_table_maker(right, [1], list)
     end
-    def encode({{left, right}, value}, code, list) do
-        new_list = encode(left, code ++ [0], list)
-        encode(right, code ++ [1], new_list)
+    def encode_table_maker({{left, right}, value}, code, list) do
+        new_list = encode_table_maker(left, code ++ [0], list)
+        encode_table_maker(right, code ++ [1], new_list)
     end
-    def encode({element, value}, code, []) do
+    def encode_table_maker({element, value}, code, []) do
         {element, code}
     end
-    def encode({element, value}, code, list) do
+    def encode_table_maker({element, value}, code, list) do
         [list | [{element, code}]]
+    end
+
+    @doc """
+    Uses the encode table to encode a message
+    returns a list of the encoded message in binary
+    """
+    def encoder do
+        
     end
 end
