@@ -32,7 +32,7 @@ defmodule Huffman do
     end
 
     def decode_table(tree) do
-        # To implement...
+        encode_table_maker(tree)
     end
 
     # Huffman.encode(Huffman.sample, Huffman.encode_table(Huffman.tree(Huffman.sample)))
@@ -40,8 +40,10 @@ defmodule Huffman do
         encoder(text, table, [])
     end
 
+    # Huffman.decode(Huffman.encode(Huffman.sample, Huffman.encode_table(Huffman.tree(Huffman.sample))),
+    # Huffman.encode_table(Huffman.tree(Huffman.sample)))
     def decode(seq, tree) do
-        # To implement...
+        decoder(seq, tree, [], [])
     end
 
     @doc """
@@ -170,12 +172,14 @@ defmodule Huffman do
     returns a list of the encoded message in binary
     """
     def encoder([], table, message) do
-        Enum.reverse(message)    
+        # Enum.reverse(message)
+        message    
     end
     def encoder(text, table, message) do
         [head | tail] = text
         code = search_table(head, table)
-        encoder(tail, table, code ++ message)
+        # encoder(tail, table, code ++ message)
+        encoder(tail, table, message ++ code)
     end
 
     @doc """
@@ -192,4 +196,38 @@ defmodule Huffman do
             true -> search_table(element, tail)
         end
     end
+
+    @doc """
+    Looks at the list of binary code and decodes it from the tree
+    """
+    def decoder([], table, check, message) do
+        Enum.reverse(message)
+        # message
+    end
+    def decoder(encoded, table, check, message) do
+        [head | tail] = encoded
+        new_check = check ++ [head]
+        decode_answer = decode_checker(new_check, table)
+        case decode_answer do
+            [nil] -> decoder(tail, table, new_check, message)
+            _ -> decoder(tail, table, [], [decode_answer] ++ message)
+        end
+    end
+
+    @doc """
+    Checks a specific code and checks if it exist in the coding table. 
+    """
+    def decode_checker(code, []) do
+        [nil]
+    end
+    def decode_checker(code, table) do
+        [head | tail] = table
+        {element, element_code} = head
+        cond do
+            code === element_code -> element
+            true -> decode_checker(code, tail)
+        end
+    end
+    # f = 0,0,0,0,0
+    # t = 1,1,0,0
 end
