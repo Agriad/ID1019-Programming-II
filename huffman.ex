@@ -35,8 +35,9 @@ defmodule Huffman do
         # To implement...
     end
 
+    # Huffman.encode(Huffman.sample, Huffman.encode_table(Huffman.tree(Huffman.sample)))
     def encode(text, table) do
-        encoder(text, table)
+        encoder(text, table, [])
     end
 
     def decode(seq, tree) do
@@ -158,17 +159,37 @@ defmodule Huffman do
         encode_table_maker(right, code ++ [1], new_list)
     end
     def encode_table_maker({element, value}, code, []) do
-        {element, code}
+        [{element, code}]
     end
     def encode_table_maker({element, value}, code, list) do
-        [list | [{element, code}]]
+        list ++ [{element, code}]
     end
 
     @doc """
     Uses the encode table to encode a message
     returns a list of the encoded message in binary
     """
-    def encoder do
-        
+    def encoder([], table, message) do
+        Enum.reverse(message)    
+    end
+    def encoder(text, table, message) do
+        [head | tail] = text
+        code = search_table(head, table)
+        encoder(tail, table, code ++ message)
+    end
+
+    @doc """
+    Searches a list for the right element to find the correct code to encode it with
+    """
+    def search_table(element, []) do
+        [nil]
+    end
+    def search_table(element, table) do
+        [head | tail] = table
+        {key, code} = head
+        cond do
+            element === key -> code
+            true -> search_table(element, tail)
+        end
     end
 end
