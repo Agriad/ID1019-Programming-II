@@ -69,7 +69,7 @@ Evaluates the expressions
 """
 
     @doc """
-    Evaluating an atom in nay environment returns an ok and the atom id
+    Evaluating an atom in any environment returns an ok and the atom id
     """
     def eval_expr({:atm, id}, _) do {:ok, id} end
 
@@ -102,6 +102,7 @@ Evaluates the expressions
     Returns a tuple of the values
     """
     def eval_expr({:cons, head, tail}, env) do
+        IO.puts "eval expr"
         case eval_expr(head, env) do
             :error ->
                 :error
@@ -121,7 +122,13 @@ Evaluates a match to see if the environment needs to be extended
         {:ok, env}
     end
 
+    # wrong
     def eval_match({:atm, id}, _, env) do
+        {:ok, env}
+    end
+
+    # correct
+    def eval_match({:atm, id}, id, env) do
         {:ok, env}
     end
 
@@ -136,6 +143,7 @@ Evaluates a match to see if the environment needs to be extended
     #     end
     # end
 
+    # remember that you can use previous functions
     def eval_match({:var, id}, str, []) do
         {:ok, [{id, str}]}
     end
@@ -157,7 +165,7 @@ Evaluates a match to see if the environment needs to be extended
                 {_, env_new} = ans
                 case eval_match(tp, str_tail, env_new) do
                     :fail -> :fail
-                    _ -> 
+                    _ ->
                         {:ok, env_result} = eval_match(tp, str_tail, env_new)
                         {:ok, env_new ++ env_result}
                 end
@@ -168,24 +176,157 @@ Evaluates a match to see if the environment needs to be extended
         :fail
     end
 
+    @doc """
+    Evaluates an expression.
+    """
     def eval_seq([exp], env) do
-        eval_expr(..., ...)
+        eval_expr(exp, env)
     end
 
-    def eval_seq([{:match, ..., ...} | ...], ...) do
-        case eval_expr(..., ...) do
-            ... ->
-            ...
-            ... ->
-            vars = extract_vars(...)
-            env = Env.remove(vars, ...)
-
-            case eval_match(..., ..., ...) do
-                :fail ->
+    def eval_seq([{:match, match_head, match_tail} | tail], env) do
+        IO.puts "eval_seq"
+        case eval_expr(match_head, env) do
+            :error ->
+                IO.puts "eval_seq case1, 1"
                 :error
+            _ ->
+            IO.puts "eval_seq case1, 2"
+            vars = extract_vars(match_head)
+            env = Env.remove(vars, env)
+            {_, tail_str} = match_tail
+            case eval_match(vars, tail_str, env) do
+                :fail ->
+                    :error
                 {:ok, env} ->
-                eval_seq(..., ...)
+                    eval_seq(tail, env)
             end
         end
     end
+
+    # def eval_seq([{:match, match_head, match_tail} | tail], env) do
+    #     case eval_expr(match_tail, env) do
+    #         :error ->
+    #             IO.puts "test1"
+    #             vars = extract_vars(match_head)
+    #             {_, tail_str} = match_tail
+    #             case eval_match(match_head, tail_str, env) do
+    #                 :fail ->
+    #                     :error
+    #                 {:ok, env} ->
+    #                     eval_seq(tail, env)
+    #             end
+    #         _ ->
+    #             IO.puts "test2"
+    #             vars = extract_vars(match_head)
+    #             env = Env.remove(vars, env)
+    #             {_, tail_str} = match_tail
+    #             case eval_match(match_head, tail_str, env) do
+    #                 :fail ->
+    #                     IO.puts "test3"
+    #                     :error
+    #                 {:ok, env} ->
+    #                     eval_seq(tail, env)
+    #             end
+    #     end
+    # end
+
+    # def eval_seq([{:match, match_head, match_tail} | tail], env) do
+    #     case eval_expr(match_tail, env) do
+    #         :error ->
+    #             IO.puts "test1"
+    #             :error
+    #         _ ->
+    #             IO.puts "test2"
+    #             vars = extract_vars(match_head)
+    #             env = Env.remove(vars, env)
+
+    #             IO.puts Kernel.inspect match_head
+    #             IO.puts Kernel.inspect match_tail
+    #             case match_tail do
+    #                 {_, str} -> 
+    #                     {_, str} = match_tail
+    #                     case out = eval_match(match_head, str, env) do # fail here maybe
+    #                         :fail ->
+    #                             IO.puts "test3"
+    #                             :error
+    #                         {:ok, env} ->
+    #                             IO.puts "test4"
+    #                             out
+    #                             eval_seq(tail, env)
+    #                     end
+    #                 {_, _, _} ->
+    #                     case out = eval_match(match_head, match_tail, env) do # fail here maybe
+    #                         :fail ->
+    #                             IO.puts "test3"
+    #                             :error
+    #                         {:ok, env} ->
+    #                             IO.puts "test4"
+    #                             out
+    #                             eval_seq(tail, env)
+    #                     end
+    #             end
+    #     end
+    # end
+
+    # def eval_seq([{:match, match_head, match_tail} | tail], env) do
+    #     case eval_expr(match_tail, env) do
+    #         :error ->
+    #             :error
+    #         _ ->
+    #             vars = extract_vars(match_head)
+    #             env = Env.remove(vars, ...)
+
+    #             case eval_match(..., ..., ...) do
+    #                 :fail ->
+    #                 :error
+    #                 {:ok, env} ->
+    #                 eval_seq(..., ...)
+    #             end
+    #     end
+    # end
+
+    @doc """
+    Extract the ids.
+    """
+    # need to extract everything and to try all cases. vaar, atm, etc
+    def extract_vars({_, id}) do
+        [id]
+    end
+    # def extract_vars({_, head, tail}) do
+    #     result = extract_vars(head)
+    #     result1 = extract_vars(head)
+    #     cond do
+    #         result === :fail && result1 === :fail -> :fail
+    #         result === :fail -> 
+    #         result1 === :fail ->
+    #         true ->
+    #     end
+    # end
+    # def extract_vars(_) do
+    #     :fail
+    # end
+
+    def eval(seq) do
+        env = Env.new()
+        result = eval_seq(seq, env)
+        case result do
+            :error -> :error
+            _ -> {:ok, result}
+        end
+        # {head | tail} = seq
+        # eval_seq(head, tail, env, [])
+    end
+    # str = [{:x, :a}]
+    # str = [{:y, {:cons, {:var, :x}, {:atm, :b}}}]
+    # str = [{:z, :b}]
+    # {:ok, str}, str = [{:x, :a}, {:y, }]
 end
+
+"""
+seq = [{:match, {:var, :x}, {:atm,:a}},{:match, {:var, :y}, {:cons, {:var, :x}, {:atm, :b}}},{:match, {:cons, :ignore, {:var, :z}}, {:var, :y}},{:var, :z}]
+
+seq = [{:match, {:var, :x}, {:atm,:a}}, {:var, :x}]
+Eager.eval([{:match, {:var, :x}, {:atm,:a}}, {:var, :x}])
+
+Eager.eval(seq)
+"""
