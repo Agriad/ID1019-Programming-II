@@ -127,20 +127,20 @@ defmodule Color do
 
     # THIS WORKS JUST THE STANDARD ONE GIVEN
 
-    # def convert(depth, max) do
-    #     division = depth / max
-    #     position = division * 4
-    #     real_position = Kernel.trunc(position)
-    #     x = real_position
-    #     y = Kernel.trunc(255 * (position - x))
-    #     case x do
-    #         0 -> {:rgb, y, 0, 0}
-    #         1 -> {:rgb, 255, y, 0}
-    #         2 -> {:rgb, 255 - y, 255, 0}
-    #         3 -> {:rgb, 0, 255, y}
-    #         4 -> {:rgb, 0, 255 - y, 255}
-    #     end
-    # end
+    def convert(depth, max) do
+        division = depth / max
+        position = division * 4
+        real_position = Kernel.trunc(position)
+        x = real_position
+        y = Kernel.trunc(255 * (position - x))
+        case x do
+            0 -> {:rgb, y, 0, 0}
+            1 -> {:rgb, 255, y, 0}
+            2 -> {:rgb, 255 - y, 255, 0}
+            3 -> {:rgb, 0, 255, y}
+            4 -> {:rgb, 0, 255 - y, 255}
+        end
+    end
 
     # def convert(depth, max) do
     #     division = depth / max
@@ -152,22 +152,22 @@ defmodule Color do
     #     #{:rgb, 255 - y, 255 - y, 255 - y}
     # end
 
-    def convert(depth, max) do
-        division = depth / max
-        position = division * 5
-        real_position = Kernel.trunc(position)
-        x = real_position
-        y = Kernel.trunc(255 * (position - x))
-        case x do
-            0 -> {:rgb, depth, 0, 0}
-            1 -> {:rgb, 0, depth, 0}
-            2 -> {:rgb, 0, 0, depth}
-            3 -> {:rgb, depth, 255, 255}
-            4 -> {:rgb, 255, depth, 255}
-            5 -> {:rgb, 255, 255, depth}    
-        end
-        #{:rgb, depth, depth, depth}
-    end
+    # def convert(depth, max) do
+    #     division = depth / max
+    #     position = division * 5
+    #     real_position = Kernel.trunc(position)
+    #     x = real_position
+    #     y = Kernel.trunc(255 * (position - x))
+    #     case x do
+    #         0 -> {:rgb, depth, 0, 0}
+    #         1 -> {:rgb, 0, depth, 0}
+    #         2 -> {:rgb, 0, 0, depth}
+    #         3 -> {:rgb, depth, 255, 255}
+    #         4 -> {:rgb, 255, depth, 255}
+    #         5 -> {:rgb, 255, 255, depth}    
+    #     end
+    #     #{:rgb, depth, depth, depth}
+    # end
 end
 
 defmodule Mandel do
