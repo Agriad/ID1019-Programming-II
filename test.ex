@@ -1,19 +1,37 @@
-# test.ex
-defmodule Test do
-    def test() do
-        test = start()
-        send(test, {:hello, "onion"})
+defmodule Chopstick do
+    def start do
+        stick = spawn_link(fn -> available() end)
     end
 
-    def start() do
-        pid = spawn(fn -> process() end)
-    end
-
-    def process() do
+    def available() do
         receive do
-            {:hello, value} -> "yo"
-            # code
+            {:request, from} -> 
+                send(from, :confirm)
+                gone()
+            :quit -> :ok
         end
-        
+    end
+
+    def gone() do
+        receive do
+            :return -> 
+                available()
+            :quit -> :ok
+        end
+    end
+
+    def request(stick) do
+        send(stick, {:request, self()})
+        receive do
+            :confirm -> :ok
+        end
+    end
+
+    def return(stick) do
+        send(stick, :return)
+    end
+
+    def terminate(stick) do
+        send(stick, :quit)
     end
 end
