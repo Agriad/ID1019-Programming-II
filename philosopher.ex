@@ -20,10 +20,20 @@ defmodule Chopstick do
         end
     end
 
-    def request(stick) do
+    # def request(stick) do
+    #     send(stick, {:request, self()})
+    #     receive do
+    #         :confirm -> :ok
+    #     end
+    # end
+
+    def request(stick, timeout) do
         send(stick, {:request, self()})
         receive do
-            :confirm -> :ok
+            :confirm ->
+                :ok
+            after timeout ->
+                :no
         end
     end
 
@@ -42,8 +52,10 @@ defmodule Philosopher do
     end
 
     def think(hunger, right, left, name, ctrl) do
-        sleep(1000)
-        eat(hunger, right, left, name, ctrl)
+        IO.puts "#{name} is thinking"
+        sleep(10)
+        #eat(hunger, right, left, name, ctrl)
+        eat_async(hunger, right, left, name, ctrl)
     end
 
     def eat(0, right, left, name, ctrl) do
@@ -53,9 +65,11 @@ defmodule Philosopher do
         #start(5, right, left, name, ctrl)
     end
     def eat(hunger, right, left, name, ctrl) do
-        right_chopstick = Chopstick.request(right)
-        sleep(100)
-        left_chopstick = Chopstick.request(left)
+        #right_chopstick = Chopstick.request(right)
+        right_chopstick = Chopstick.request(right, :rand.uniform(500))
+        sleep(1000)
+        #left_chopstick = Chopstick.request(left)
+        left_chopstick = Chopstick.request(left, :rand.uniform(500))
         case right_chopstick do
             :ok ->
                 IO.puts("#{name} received a right chopstick!")
@@ -64,12 +78,51 @@ defmodule Philosopher do
                         IO.puts("#{name} received a left chopstick!")
                         IO.puts("#{name} is eating!")
                         sleep(hunger)
-                end 
+                        sleep(100)
+                        Chopstick.return(right)
+                        Chopstick.return(left)
+                        think(hunger - 1, right, left, name, ctrl)
+                    :no ->
+                        Chopstick.return(right)
+                        Chopstick.return(left)
+                        IO.puts("#{name} could not get left chopstick!")
+                        think(hunger, right, left, name, ctrl)
+                end
+             :no ->
+                Chopstick.return(right)
+                IO.puts("#{name} could not get right chopstick!")
+                think(hunger, right, left, name, ctrl)
         end
-        sleep(100)
-        return_right_chopstick = Chopstick.return(right)
-        return_left_chopstick = Chopstick.return(left)
-        think(hunger - 1, right, left, name, ctrl)
+        # sleep(100)
+        # return_right_chopstick = Chopstick.return(right)
+        # return_left_chopstick = Chopstick.return(left)
+        # think(hunger - 1, right, left, name, ctrl)
+    end
+
+    def eat_async(0, right, left, name, ctrl) do
+        IO.puts("#{name} is full!")
+        send(ctrl, :done)
+    end
+    def eat_async(hunger, right, left, name, ctrl) do
+        right_chopstick = Chopstick.request(right, :rand.uniform(1500))
+        sleep(1000)
+        left_chopstick = Chopstick.request(left, :rand.uniform(1500))
+        cond do
+            right_chopstick === :ok && left_chopstick === :ok ->
+                IO.puts("#{name} received both chopsticks!")
+                IO.puts("#{name} is eating!")
+                sleep(hunger)
+                sleep(100)
+                Chopstick.return(right)
+                Chopstick.return(left)
+                think(hunger - 1, right, left, name, ctrl)
+            true ->
+                IO.puts("#{name} could not get chopsticks!")
+                Chopstick.return(right)
+                Chopstick.return(left)
+                think(hunger, right, left, name, ctrl)
+                
+        end
     end
 
     def sleep(0) do
@@ -99,11 +152,12 @@ defmodule Dinner do
     Philosopher.start(5, c2, c3, "Hypatia", ctrl)
     Philosopher.start(5, c3, c4, "Simone", ctrl)
     Philosopher.start(5, c4, c5, "Elisabeth", ctrl)
-    Philosopher.start(5, c1, c5, "Ayn", ctrl)
+    Philosopher.start(5, c5, c1, "Ayn", ctrl)
     wait(5, [c1, c2, c3, c4, c5])
     end
 
     def wait(0, chopsticks) do
+        IO.puts "Everbody is done eating"
         Enum.each(chopsticks, fn(c) -> Chopstick.terminate(c) end)
     end
 
