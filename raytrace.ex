@@ -29,7 +29,7 @@ end
 defmodule Ray do
     require Record
 
-    Record.defrecord(:ray, pos: {0, 0, 0}, dir: {1, 1, 1})
+    Record.defrecord(:ray, pos: {:pos, 0, 0, 0}, dir: {:vector, 1, 1, 1})
 
     # def ray(pos: pos, dir: dir) do
     #     {:ray, pos: pos, dir: dir}
@@ -53,5 +53,11 @@ defprotocol Object do
 end
 
 defmodule Sphere do
-    defstruct pos: {0, 0, 0}, radius: 2 
+    defstruct pos: {:pos, 0, 0, 0}, radius: 2 
+end
+
+defimpl Object do
+    def intersect(sphere = %Sphere{}, ray = %Ray{}) do
+        distance = sphere.pos
+    end
 end

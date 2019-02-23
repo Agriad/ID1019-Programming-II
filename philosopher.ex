@@ -54,8 +54,8 @@ defmodule Philosopher do
     def think(hunger, right, left, name, ctrl) do
         IO.puts "#{name} is thinking"
         sleep(10)
-        #eat(hunger, right, left, name, ctrl)
-        eat_async(hunger, right, left, name, ctrl)
+        eat(hunger, right, left, name, ctrl)
+        #eat_async(hunger, right, left, name, ctrl)
     end
 
     def eat(0, right, left, name, ctrl) do
