@@ -73,6 +73,7 @@ defmodule Rudy do
         case :gen_tcp.accept(listen) do
             {:ok, client} ->
                 request(client)
+                handler(listen)
             {:error, error} ->
             error
         end
@@ -82,7 +83,8 @@ defmodule Rudy do
         recv = :gen_tcp.recv(client, 0)
         case recv do
             {:ok, str} ->
-                answer = HTTP.parse_request(str) 
+                #answer = HTTP.parse_request(str) 
+                answer = HTTP.parse_request("#{str}")
                 response = reply(answer)
                 :gen_tcp.send(client, response)
             {:error, error} ->
@@ -91,14 +93,14 @@ defmodule Rudy do
         :gen_tcp.close(client)
     end
 
-    def reply({{:get, uri, _}, _, _}) do
-        HTTP.ok("Hello!")
-    end
-
     # def reply({{:get, uri, _}, _, _}) do
-    #     :timer.sleep(10)
     #     HTTP.ok("Hello!")
     # end
+
+    def reply({{:get, uri, _}, _, _}) do
+        :timer.sleep(10)
+        HTTP.ok("Hello!")
+    end
 
     def start(port) do
         Process.register(spawn(fn -> init(port) end), :rudy)
@@ -107,6 +109,20 @@ defmodule Rudy do
     def stop() do
         Process.exit(Process.whereis(:rudy), "Time to die!")
     end
+
+    # def start(port) do
+    #     Process.register(spawn(fn -> init(port) end), :rudy1)
+    #     Process.register(spawn(fn -> init(port) end), :rudy2)
+    #     Process.register(spawn(fn -> init(port) end), :rudy3)
+    #     Process.register(spawn(fn -> init(port) end), :rudy4)
+    # end
+
+    # def stop() do
+    #     Process.exit(Process.whereis(:rudy1), "Time to die!")
+    #     Process.exit(Process.whereis(:rudy2), "Time to die!")
+    #     Process.exit(Process.whereis(:rudy3), "Time to die!")
+    #     Process.exit(Process.whereis(:rudy4), "Time to die!")
+    # end
 
 end
 
