@@ -110,20 +110,6 @@ defmodule Rudy do
         Process.exit(Process.whereis(:rudy), "Time to die!")
     end
 
-    # def start(port) do
-    #     Process.register(spawn(fn -> init(port) end), :rudy1)
-    #     Process.register(spawn(fn -> init(port) end), :rudy2)
-    #     Process.register(spawn(fn -> init(port) end), :rudy3)
-    #     Process.register(spawn(fn -> init(port) end), :rudy4)
-    # end
-
-    # def stop() do
-    #     Process.exit(Process.whereis(:rudy1), "Time to die!")
-    #     Process.exit(Process.whereis(:rudy2), "Time to die!")
-    #     Process.exit(Process.whereis(:rudy3), "Time to die!")
-    #     Process.exit(Process.whereis(:rudy4), "Time to die!")
-    # end
-
 end
 
 defmodule Test do

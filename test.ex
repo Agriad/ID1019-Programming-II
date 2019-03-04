@@ -1,37 +1,33 @@
-defmodule Chopstick do
-    def start do
-        stick = spawn_link(fn -> available() end)
+defmodule Test do
+    def start() do
+        id = spawn(fn() -> memory_1() end)
     end
 
-    def available() do
+    def memory_1() do
         receive do
-            {:request, from} -> 
-                send(from, :confirm)
-                gone()
-            :quit -> :ok
+            {:set, new} ->
+                memory_2(new)
+            {:quit} ->
+                :ok
+        end
+        
+    end
+
+    def memory_2(data) do
+        receive do
+            {:swap, new, from} ->
+                send(from, {:ok, data})
+                memory_2(new)
+            {:quit} ->
+                :ok
         end
     end
 
-    def gone() do
+    def change(id, data) do
+        my_id = self()
+        send(id, {:swap, data, my_id})
         receive do
-            :return -> 
-                available()
-            :quit -> :ok
+            {:ok, data} -> data
         end
-    end
-
-    def request(stick) do
-        send(stick, {:request, self()})
-        receive do
-            :confirm -> :ok
-        end
-    end
-
-    def return(stick) do
-        send(stick, :return)
-    end
-
-    def terminate(stick) do
-        send(stick, :quit)
     end
 end
