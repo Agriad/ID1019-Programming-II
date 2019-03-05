@@ -149,6 +149,36 @@ defmodule Test do
     # {:node, 9, :nil, :nil}, {:node, 10, :nil, :nil}, {:node, 11, :nil, :nil}
     # {:node, 12, :nil, :nil}, {:node, 13, :nil, :nil}, {:node, 14, :nil, :nil}, {:node, 15, :nil, :nil}
 
+    def start(data) do
+        id = spawn(fn() -> memory() end)
+        send(id, {:set, data})
+        id
+    end
+
+    def memory() do
+        receive do
+            {:set, new} ->
+                memory(new)
+        end
+    end
+    def memory(data) do
+        receive do
+            {:swap, new, from} ->
+                send(from, {:ok, data})
+                memory(new)
+            {:quit} ->
+                IO.formats "process terminated"
+                :ok
+        end
+    end
+
+    def memory_test(id, data) do
+        send(id, {:swap, data, self()})
+        receive do
+            {:ok, data} ->
+                data
+        end
+    end
 end
 
 # c("exam_2016_03_19.ex")
