@@ -53,7 +53,7 @@ defmodule Test do
     # [5, '+', 2, '-', 3, '+', 10]
 
     def iso({:node, _, nil, nil}) do
-        :true
+        :ok
     end
     def iso({:node, _, nil, _}) do
         :false
@@ -66,12 +66,59 @@ defmodule Test do
         eval_right = iso(right)
         cond do
             eval_left == eval_right ->
-                :true
+                :ok
             true ->
                 :false
         end
     end
     # {:node, 1, {:node, 2, nil, nil}, {:node, 3, nil, nil}}
     # {:node, 1, {:node, 2, nil, nil}, nil}
+
+    def isomorfic(tree1, tree2) do
+        case iso(tree1) do
+            :ok ->
+                case iso(tree2) do
+                    :ok ->
+                        :true
+                    :false ->
+                        :false
+                end  
+            :false ->
+                :false  
+        end
+    end
+
+    def foldp([elem], _) do
+        elem
+    end
+    def foldp(list, function) do
+        {list1, list2} = split(list, [], [])
+        self = self()
+        spawn_link(fn() -> elem = foldp(list1, function); send(self, {:ok, elem}) end)
+        spawn_link(fn() -> elem = foldp(list2, function)
+             send(self, {:ok, elem}) end)
+        receive do
+            {:ok, element1} ->
+                receive do
+                    {:ok, element2} ->
+                        IO.puts element1
+                        IO.puts element2
+                        function.(element1, element2)
+                end
+        end
+    end
+
+    def split([], list1, list2) do
+        {list1, list2}
+    end
+    def split([elem], list1, list2) do
+        {[elem | list1], list2}
+    end
+    def split([h1, h2| t], list1, list2) do
+        split(t, [h1 | list1], [h2 | list2])
+    end
+    # [1, 2, 3, 4, 5, 6, 7, 8] fn(x, y) -> x + y end
+
+    def test(x), do: x
 end
 # c("exam_2016_06_10.ex")
